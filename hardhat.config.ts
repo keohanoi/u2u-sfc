@@ -8,7 +8,7 @@ import '@typechain/hardhat';
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
-
+import "@nomicfoundation/hardhat-foundry";
 
 const config: HardhatUserConfig = {
   networks: {
