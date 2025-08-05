@@ -1,6 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 import "../common/Decimal.sol";
 
@@ -47,7 +47,7 @@ contract ConstantsManager is Ownable {
 //        secondaryOwner = v;
 //    }
 
-    function updateMinSelfStake(uint256 v) onlyOwner external {
+    function updateMinSelfStake(uint256 v) onlyOwner virtual external {
         require(v >= 100000 * 1e18, "too small value");
         require(v <= 10000000 * 1e18, "too large value");
         minSelfStake = v;
@@ -104,13 +104,13 @@ contract ConstantsManager is Ownable {
         withdrawalPeriodTime = v;
     }
 
-    function updateBaseRewardPerSecond(uint256 v) onlyOwner external {
+    function updateBaseRewardPerSecond(uint256 v) onlyOwner virtual external {
         require(v >= 0.5 * 1e18, "too small value");
         require(v <= 32 * 1e18, "too large value");
         baseRewardPerSecond = v;
     }
 
-    function updateOfflinePenaltyThresholdTime(uint256 v) onlyOwner external {
+    function updateOfflinePenaltyThresholdTime(uint256 v) onlyOwner external virtual {
         require(v >= 86400, "too small value");
         require(v <= 10 * 86400, "too large value");
         offlinePenaltyThresholdTime = v;
@@ -122,13 +122,13 @@ contract ConstantsManager is Ownable {
         offlinePenaltyThresholdBlocksNum = v;
     }
 
-    function updateTargetGasPowerPerSecond(uint256 v) onlyOwner external {
+    function updateTargetGasPowerPerSecond(uint256 v) onlyOwner external virtual {
         require(v >= 1000000, "too small value");
         require(v <= 500000000, "too large value");
         targetGasPowerPerSecond = v;
     }
 
-    function updateGasPriceBalancingCounterweight(uint256 v) onlyOwner external {
+    function updateGasPriceBalancingCounterweight(uint256 v) onlyOwner external virtual {
         require(v >= 100, "too small value");
         require(v <= 10 * 86400, "too large value");
         gasPriceBalancingCounterweight = v;

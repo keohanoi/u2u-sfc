@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./ERC20.sol";
 
@@ -30,7 +30,7 @@ contract ERC20Burnable is ERC20 {
      * @dev Overrides ERC20._burn in order for burn and burnFrom to emit
      * an additional Burn event.
      */
-    function _burn(address who, uint256 value) internal {
+    function _burn(address who, uint256 value) internal override {
         super._burn(who, value);
     }
 }

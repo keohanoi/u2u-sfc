@@ -1,12 +1,14 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "../common/Decimal.sol";
 import "./GasPriceConstants.sol";
 import "./SFCBase.sol";
 import "./StakeTokenizer.sol";
 import "./NodeDriver.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract SFCLib is SFCBase {
+    using SafeMath for uint256;
     event CreatedValidator(uint256 indexed validatorID, address indexed auth, uint256 createdEpoch, uint256 createdTime);
     event Delegated(address indexed delegator, uint256 indexed toValidatorID, uint256 amount);
     event Undelegated(address indexed delegator, uint256 indexed toValidatorID, uint256 indexed wrID, uint256 amount);
@@ -160,7 +162,7 @@ contract SFCLib is SFCBase {
     }
 
     function recountVotes(address delegator, address validatorAuth, bool strict, uint256 gas) external {
-        (bool success,) = voteBookAddress.call.gas(gas)(abi.encodeWithSignature("recountVotes(address,address)", delegator, validatorAuth));
+        (bool success,) = voteBookAddress.call{gas: gas}(abi.encodeWithSignature("recountVotes(address,address)", delegator, validatorAuth));
         require(success || !strict, "gov votes recounting failed");
     }
 
@@ -224,7 +226,7 @@ contract SFCLib is SFCBase {
     }
 
     function withdraw(uint256 toValidatorID, uint256 wrID) public {
-        address payable delegator = msg.sender;
+        address delegator = msg.sender;
         WithdrawalRequest memory request = getWithdrawalRequest[delegator][toValidatorID][wrID];
         require(request.epoch != 0, "request doesn't exist");
         require(_checkAllowedToWithdraw(delegator, toValidatorID), "outstanding sU2U balance");
@@ -247,7 +249,7 @@ contract SFCLib is SFCBase {
         totalSlashedStake += penalty;
         require(amount > penalty, "stake is fully slashed");
         // It's important that we transfer after erasing (protection against Re-Entrancy)
-        (bool sent,) = delegator.call.value(amount.sub(penalty))("");
+        (bool sent,) = delegator.call{value: amount.sub(penalty)}("");
         require(sent, "Failed to send U2U");
         _burnU2U(penalty);
 
@@ -377,10 +379,10 @@ contract SFCLib is SFCBase {
     }
 
     function claimRewards(uint256 toValidatorID) public {
-        address payable delegator = msg.sender;
+        address delegator = msg.sender;
         Rewards memory rewards = _claimRewards(delegator, toValidatorID);
         // It's important that we transfer after erasing (protection against Re-Entrancy)
-        (bool sent,) = delegator.call.value(rewards.lockupExtraReward.add(rewards.lockupBaseReward).add(rewards.unlockedReward))("");
+        (bool sent,) = delegator.call{value: rewards.lockupExtraReward.add(rewards.lockupBaseReward).add(rewards.unlockedReward)}("");
         require(sent, "Failed to send U2U");
 
         emit ClaimedRewards(delegator, toValidatorID, rewards.lockupExtraReward, rewards.lockupBaseReward, rewards.unlockedReward);
@@ -403,7 +405,7 @@ contract SFCLib is SFCBase {
 
     function _burnU2U(uint256 amount) internal {
         if (amount != 0) {
-            address(0).transfer(amount);
+            payable(0).transfer(amount);
             emit BurntU2U(amount);
         }
     }

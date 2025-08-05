@@ -1,35 +1,38 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./GasPriceConstants.sol";
 import "../version/Version.sol";
 import "./SFCBase.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @dev Stakers contract defines data structure and methods for validators / validators.
  */
 contract SFC is SFCBase, Version {
+    using SafeMath for uint256;
     function _delegate(address implementation) internal {
         assembly {
         // Copy msg.data. We take full control of memory in this inline assembly
         // block because it will not return to Solidity code. We overwrite the
         // Solidity scratch pad at memory position 0.
-            calldatacopy(0, 0, calldatasize)
+            calldatacopy(0, 0, calldatasize())
 
         // Call the implementation.
         // out and outsize are 0 because we don't know the size yet.
-            let result := delegatecall(gas, implementation, 0, calldatasize, 0, 0)
+            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)
 
         // Copy the returned data.
-            returndatacopy(0, 0, returndatasize)
+            returndatacopy(0, 0, returndatasize())
 
             switch result
             // delegatecall returns 0 on error.
-            case 0 {revert(0, returndatasize)}
-            default {return (0, returndatasize)}
+            case 0 {revert(0, returndatasize())}
+            default {return (0, returndatasize())}
         }
     }
 
-    function() payable external {
+    fallback() external payable{
+
         require(msg.data.length != 0, "transfers not allowed");
         _delegate(libAddress);
     }
@@ -168,7 +171,8 @@ contract SFC is SFCBase, Version {
         if (treasuryAddress != address(0)) {
             uint256 feeShare = ctx.epochFee * c.treasuryFeeShare() / Decimal.unit();
             _mintNativeToken(feeShare);
-            treasuryAddress.call.value(feeShare)("");
+            (bool success, ) = treasuryAddress.call{value: feeShare}("");
+            // require(success, "Treasury transfer failed");
         }
     }
 

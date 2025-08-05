@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./IERC20.sol";
 import "../../common/Initializable.sol";
@@ -6,7 +6,7 @@ import "../../common/Initializable.sol";
 /**
  * @dev Optional functions from the ERC20 standard.
  */
-contract ERC20Detailed is Initializable, IERC20 {
+abstract contract ERC20Detailed is Initializable, IERC20 {
     string private _name;
     string private _symbol;
     uint8 private _decimals;

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./SFCI.sol";
 import "./NodeDriver.sol";
@@ -31,7 +31,7 @@ contract NetworkInitializer {
         consts.transferOwnership(_owner);
 
         SFCI(_sfc).initialize(sealedEpoch, totalSupply, _auth, _lib, address(consts), _owner);
-        selfdestruct(address(0));
+        selfdestruct(payable(0));
     }
 }
 

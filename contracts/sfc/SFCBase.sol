@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./SFCState.sol";
 
@@ -14,7 +14,7 @@ contract SFCBase is SFCState {
     event DeactivatedValidator(uint256 indexed validatorID, uint256 deactivatedEpoch, uint256 deactivatedTime);
     event ChangedValidatorStatus(uint256 indexed validatorID, uint256 status);
 
-    function isNode(address addr) internal view returns (bool) {
+    function isNode(address addr) internal view virtual returns (bool) {
         return addr == address(node);
     }
 
@@ -76,7 +76,7 @@ contract SFCBase is SFCState {
     function _recountVotes(address delegator, address validatorAuth, bool strict) internal {
         if (voteBookAddress != address(0)) {
             // Don't allow recountVotes to use up all the gas
-            (bool success,) = voteBookAddress.call.gas(8000000)(abi.encodeWithSignature("recountVotes(address,address)", delegator, validatorAuth));
+            (bool success,) = voteBookAddress.call{gas: 8000000}(abi.encodeWithSignature("recountVotes(address,address)", delegator, validatorAuth));
             // Don't revert if recountVotes failed unless strict mode enabled
             require(success || !strict, "gov votes recounting failed");
         }
@@ -126,11 +126,11 @@ contract SFCBase is SFCState {
         return getLockupInfo[delegator][toValidatorID].lockedStake;
     }
 
-    function isLockedUp(address delegator, uint256 toValidatorID) view public returns (bool) {
+    function isLockedUp(address delegator, uint256 toValidatorID) view public virtual returns (bool) {
         return getLockupInfo[delegator][toValidatorID].endTime != 0 && getLockupInfo[delegator][toValidatorID].lockedStake != 0 && _now() <= getLockupInfo[delegator][toValidatorID].endTime;
     }
 
-    function _now() internal view returns (uint256) {
+    function _now() internal view virtual returns (uint256) {
         return block.timestamp;
     }
 }

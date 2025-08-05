@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./NodeDriver.sol";
 import "./SFC.sol";
@@ -32,7 +32,7 @@ contract Updater {
         govFrom = _govFrom;
         voteBook = _voteBook;
         owner = _owner;
-        address payable sfcTo = 0xFC00FACE00000000000000000000000000000000;
+        address sfcTo = 0xFC00FACE00000000000000000000000000000000;
         require(sfcFrom != address(0) && sfcLib != address(0) && sfcConsts != address(0) && govTo != address(0) && govFrom != address(0) && voteBook != address(0) && owner != address(0), "0 address");
         require(Version(sfcTo).version() == "303", "SFC already updated");
         require(Version(sfcFrom).version() == "304", "wrong SFC version");
@@ -41,7 +41,7 @@ contract Updater {
     }
 
     function execute() external {
-        address payable sfcTo = 0xFC00FACE00000000000000000000000000000000;
+        address sfcTo = 0xFC00FACE00000000000000000000000000000000;
 
         ConstantsManager consts = ConstantsManager(sfcConsts);
         consts.initialize();
@@ -68,7 +68,7 @@ contract Updater {
         nodeAuth.upgradeCode(sfcTo, sfcFrom);
         SFCI(sfcTo).updateConstsAddress(sfcConsts);
         SFCI(sfcTo).updateVoteBookAddress(voteBook);
-        SFC(sfcTo).updateLibAddress(sfcLib);
+        SFC(payable(sfcTo)).updateLibAddress(sfcLib);
 
         nodeAuth.upgradeCode(govTo, govFrom);
         GovI(govTo).upgrade(voteBook);

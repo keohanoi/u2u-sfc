@@ -1,6 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../common/Initializable.sol";
 import "../ownership/Ownable.sol";
 import "./SFCI.sol";
@@ -140,9 +140,11 @@ contract NodeDriverAuth is Initializable, Ownable {
         bytes memory bstr = new bytes(decimals);
         uint strIdx = decimals - 1;
         while (num != 0) {
-            bstr[strIdx] = byte(uint8(48 + num % 10));
+            bstr[strIdx] = bytes1(uint8(48 + num % 10));
             num /= 10;
-            strIdx--;
+            unchecked {
+                strIdx--;
+            }
         }
         return string(bstr);
     }
